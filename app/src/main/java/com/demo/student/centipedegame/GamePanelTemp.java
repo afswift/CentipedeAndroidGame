@@ -18,7 +18,7 @@ import java.util.Random;
  * Created by butle on 3/17/2018.
  */
 
-class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
+class GamePanelTemp extends SurfaceView implements SurfaceHolder.Callback {
 
     public static final int WIDTH = 480;
     public static final int HEIGHT = 856;
@@ -34,26 +34,20 @@ class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     private Paint testPaint;
     private Paint test2Paint;
     private Paint scorePaint;
-    private long newCentipedeTimer = 0;
-
-    private boolean centipedeReachedBottom = false;
-
+    private Centipede centipedeRef;
     private boolean ignoreCollision;
     private int mushroomIndex;
     private int centipedeIndex;
     private int score = 0;
-    private int numberOfLives = 3;
-    private boolean gameOver;
-    private int nextLifeScore = 10000;
 
 
-    public GamePanel(Context context){
+    public GamePanelTemp(Context context){
         super(context);
 
         // add the callback to the surfaceHolder to intercept events
         getHolder().addCallback(this);
 
-        thread = new GameThread(getHolder(), this);
+        //thread = new GameThread(getHolder(), this);
         //
         setFocusable(true);
     }
@@ -63,8 +57,6 @@ class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         background = new Background(BitmapFactory.decodeResource(getResources(), R.drawable.grassbg1));
         player = new Player(BitmapFactory.decodeResource(getResources(), R.drawable.player),14,16);
         laser = new Laser();
-
-        gameOver = false;
 
         centipedeArrayList = new ArrayList<Centipede>();
         centipedeArrayList.add(new Centipede(BitmapFactory.decodeResource(getResources(), R.drawable.centipede_head),true, 15*16, 0));
@@ -90,7 +82,7 @@ class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         Paint paint = new Paint();
         paint.setColor(Color.GRAY);
         paint.setStyle(Paint.Style.FILL);
-        paint.setTextSize(40);
+        paint.setTextSize(20);
 
         scorePaint = new Paint();
         scorePaint.setStyle(Paint.Style.FILL);
@@ -162,28 +154,15 @@ class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         return true;
     }
 
-    // **********************
-    // **** UPDATE EVENT ****
-    // **********************
-
     public void update(){
         if(player.getPlaying()) {
             background.update();
             laser.update();
             player.update();
 
-
-            if((System.nanoTime()/1000000) - newCentipedeTimer   > 5000 && centipedeReachedBottom){
-                centipedeArrayList.add(new Centipede(BitmapFactory.decodeResource(getResources(), R.drawable.centipede_head),true, 488* rand.nextInt(2), 16*25));
-                newCentipedeTimer =  (System.nanoTime()/1000000);
-            }
             //System.out.println("Centipede Y: " + centipedeArrayList.get(0).getY() % 16);
             for(int i = 0; i < centipedeArrayList.size();i++ ) {
-                centipedeArrayList.get(i).update();
-                if(centipedeArrayList.get(i).getY() >= 512 && !centipedeReachedBottom){
-                    centipedeReachedBottom = true;
-                    newCentipedeTimer = System.nanoTime()/1000000;
-                }
+                    centipedeArrayList.get(i).update();
             }
 
             if(rightButton.isButtonPressed() && !laser.isLaserOnscreen())
@@ -207,7 +186,7 @@ class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                 if(collision(mushroomArrayList.get(i), player)){
                     tempMushroomReference = mushroomArrayList.get(i);
 
-                    // from right
+                     // from right
                     if(player.getxPrev() >= (tempMushroomReference.getX()+ tempMushroomReference.getWidth())){
                         player.setX(tempMushroomReference.getX() + tempMushroomReference.getWidth());//+1);
                         player.setDx(0);
@@ -243,15 +222,7 @@ class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                     }
 
                     if(collision(centipedeArrayList.get(j), player)){
-                        if(numberOfLives > 0) {
-                            resetScene();
-                            numberOfLives--;
-                        }
-                        else{
-                            gameOver = true;
-                            player.setPlaying(false);
-                        }
-
+                        resetScene();
                     }
 
                     if(collision(centipedeArrayList.get(j), laser)) {
@@ -260,22 +231,16 @@ class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                         }
                         if(centipedeArrayList.get(j).isHead()){
                             score += 100;
-                        }else{
-                            score += 10;
                         }
 
                         if(centipedeArrayList.get(j).nextValidMushroomPositionX() != -1)
-                            mushroomArrayList.add(new Mushroom(BitmapFactory.decodeResource(getResources(), R.drawable.mushrooms),
-                                    centipedeArrayList.get(j).nextValidMushroomPositionX(),centipedeArrayList.get(j).getY(), 4 ));
+                        mushroomArrayList.add(new Mushroom(BitmapFactory.decodeResource(getResources(), R.drawable.mushrooms),
+                                centipedeArrayList.get(j).nextValidMushroomPositionX(),centipedeArrayList.get(j).getY(), 4 ));
                         laser.stopFiring();
-
+                        centipedeArrayList.remove(j);
                         if(j - 1 > -1)
                             centipedeIndex = j-1;
-
-                        centipedeArrayList.remove(j);
-
-                        if(centipedeArrayList.size() == 0)
-                            spawnNewCentipede();
+                        //j--;
                         mushroomIndex = mushroomArrayList.size() -1;
                         ignoreCollision = true;
                     }
@@ -285,10 +250,6 @@ class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                 mushroomArrayList.remove(tempMushroomIndex);
 
 
-        }
-        if(score >= nextLifeScore){
-            numberOfLives++;
-            nextLifeScore+=nextLifeScore;
         }
     }
 
@@ -323,12 +284,7 @@ class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                 centipedeArrayList.get(i).draw(canvas);
             }
 
-
-            if(gameOver){
-                canvas.drawText("GAME OVER", WIDTH/2 , HEIGHT, scorePaint);
-            }else{
-                canvas.drawText(Integer.toString(score), WIDTH/2 , 20, scorePaint);
-            }
+            canvas.drawText(Integer.toString(score), WIDTH/2 , 20, scorePaint);
             // restore so image doesn't get larger and larger
             canvas.restoreToCount(savedState);
 
@@ -340,14 +296,10 @@ class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         for(int i = 0; i<tempMushroomCount; i++){
             mushroomArrayList.get(i).setHitpoints(4);
         }
-        for(int i = tempMushroomCount -1; i< 30; i++){
+        for(int i = tempMushroomCount -1; i< 43; i++){
             score+=5; // upon regenerating a mushroom, player gets 5 points for each mushroom destroyed
             mushroomArrayList.add(new Mushroom(BitmapFactory.decodeResource(getResources(), R.drawable.mushrooms),(16 * rand.nextInt(30)), (16 * (3 + rand.nextInt(27))), 4 ));
         }
-        spawnNewCentipede();
-    }
-
-    public void spawnNewCentipede(){
         centipedeArrayList = null;
         centipedeArrayList = new ArrayList<Centipede>();
         centipedeArrayList.add(new Centipede(BitmapFactory.decodeResource(getResources(), R.drawable.centipede_head),true, 15*16, 0));
@@ -355,6 +307,5 @@ class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
             centipedeArrayList.add(new Centipede(BitmapFactory.decodeResource(getResources(), R.drawable.centipede_body),false, (15)*16, i*-16));
 
         }
-        centipedeReachedBottom = false;
     }
 }

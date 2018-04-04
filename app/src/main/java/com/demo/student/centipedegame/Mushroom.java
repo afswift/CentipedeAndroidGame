@@ -25,9 +25,6 @@ public class Mushroom extends GameObject {
         height = 16;
         mushroomSprites = new Bitmap[numFrames];
         infected = false;
-        System.out.println(spritesheet.getHeight());
-        System.out.println(spritesheet.getHeight());
-        System.out.println(spritesheet.getHeight());
         for(int i = 0; i<mushroomSprites.length; i++){
             mushroomSprites[i] = Bitmap.createBitmap(spritesheet, i*width, 0, width, height);
         }

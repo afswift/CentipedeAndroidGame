@@ -97,12 +97,17 @@ public class Joystick {
         return (float)(Math.atan2(currentY-centerY, currentX-centerX));
     }
 
+    public float getJoystickeMagnitude(){
+        if(currentRadius(currentX, currentY) > radius)
+            return 1.0f;
+        return currentRadius(currentX, currentY)/radius;
+    }
+
     public boolean isIdle(){
         if(currentX == centerX && currentY == centerY)
             return true;
         return false;
     }
-
 
     public void draw(Canvas canvas){
         canvas.drawCircle(centerX, centerY , radius, joystickBaseColor);

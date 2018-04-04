@@ -2,6 +2,7 @@ package com.demo.student.centipedegame;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Rect;
 
 /**
  * Created by butle on 3/18/2018.
@@ -11,34 +12,24 @@ public class Player extends GameObject {
     private Bitmap spritesheet;
     private int score;
     private boolean playing;
-    private boolean up;
-    private Animation animation = new Animation();
-    private long startTime;
+    private int xPrev;
+    private int yPrev;
 
-    public Player(Bitmap res, int w, int h, int numFrames){
-        x=100;
-        y=(int)GamePanel.HEIGHT/2;
+    public Player(Bitmap res, int w, int h){
+        x=GamePanel.WIDTH / 2;
+        y=504;
         dy = 0;
         score = 0;
         height = h;
         width = w;
 
-        Bitmap[] image = new Bitmap[numFrames];
-        spritesheet = res;
-
-        for(int i = 0; i<image.length; i++){
-            image[i] = Bitmap.createBitmap(spritesheet, i*width, 0, width, height);
-        }
-
-        animation.setFrames(image);
-        animation.setDelay(10);
-        startTime = System.nanoTime();
+        spritesheet = Bitmap.createScaledBitmap(res, 14, 16, false);
     }
 
-    public void setDirection(float Angle){
+    public void setDirection(float Angle, float Magnitude){
 
-        dx = (int) (10* Math.cos(Angle));
-        dy = (int) (10* Math.sin(Angle));
+        dx = (int) (10 * Magnitude * Math.cos(Angle));
+        dy = (int) (10 * Magnitude * Math.sin(Angle));
     }
 
     public void setNeutral(){
@@ -47,19 +38,26 @@ public class Player extends GameObject {
     }
 
     public void update(){
-        long elapsed = (System.nanoTime() - startTime)/1000000;
-        if(elapsed>100){
-            score++;
-            startTime = System.nanoTime();
-        }
 
-        animation.update();
-        x += dx;
-        y += dy;
+        xPrev = x;
+        yPrev = y;
+        if( x + dx < 0)
+            x = 0;
+        else if(x + dx > 480 - width)
+            x = 480 - width;
+        else
+            x += dx;
+
+        if(y + dy > 514 - height)
+            y = 514 - height;
+        else if(y +  dy < 448)
+            y = 448;
+        else
+            y += dy;
     }
 
     public void draw(Canvas canvas){
-        canvas.drawBitmap(animation.getImage(),x,y, null);
+        canvas.drawBitmap(spritesheet, x, y, null);
     }
 
     public int getScore(){
@@ -80,6 +78,26 @@ public class Player extends GameObject {
 
     public void resetScore(){
         score = 0;
+    }
+
+    public int getxPrev() {
+        return xPrev;
+    }
+
+    public void setxPrev(int xPrev) {
+        this.xPrev = xPrev;
+    }
+
+    public int getyPrev() {
+        return yPrev;
+    }
+
+    public void setyPrev(int yPrev) {
+        this.yPrev = yPrev;
+    }
+
+    public Rect getProjectedRectangle(){
+        return new Rect(x+ dx,y + dy, x+width, y+height);
     }
 }
 
