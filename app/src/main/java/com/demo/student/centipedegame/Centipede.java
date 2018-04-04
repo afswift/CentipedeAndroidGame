@@ -3,6 +3,8 @@ package com.demo.student.centipedegame;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 
+import java.util.Random;
+
 /**
  * Created by butle on 4/1/2018.
  */
@@ -22,6 +24,7 @@ public class Centipede extends GameObject {
     private int prevY = 0;
     private int prev2X;
     private int prev2Y;
+    private boolean centipedeReachedBottom;
 
     // directionCode 0 is left, 1 is right, 2 is diag, 3 is down
 
@@ -33,7 +36,7 @@ public class Centipede extends GameObject {
         this.y = y;
         this.directionCode = 3;
         this.frameCount = 8;
-
+        centipedeReachedBottom = false;
 
         image = new Bitmap[8][4];
         spritesheet = Bitmap.createScaledBitmap(res, 128, 64, false);
@@ -56,26 +59,31 @@ public class Centipede extends GameObject {
         }
     }
 
-    public void mushroomCollision(Mushroom mushroom, boolean isInfected){
-        if(isInfected){
+    public void mushroomCollision(Mushroom mushroom){
 
+        if(directionCode == 0){
+            prevDirectionCode = 0;
+            x = mushroom.getX() + mushroom.getWidth();
+        }else if(directionCode == 1){
+            prevDirectionCode = 1;
+            x = mushroom.getX() - width;
         }else{
-            if(directionCode == 0){
-                prevDirectionCode = 0;
-                x = mushroom.getX() + mushroom.getWidth();
-            }else if(directionCode == 1){
-                prevDirectionCode = 1;
-                x = mushroom.getX() - width;
-            }else{
-                return;
-            }
-
-            dx = 0;
-            dy = 8;
-            y+=8;
-            directionCode = 2;
+            return;
         }
+
+        dx = 0;
+        dy = 8;
+        if(!centipedeReachedBottom) {
+            y += 8;
+            dy = 8;
+        }
+        else {
+            y -= 8;
+            dy = -8;
+        }
+        directionCode = 2;
     }
+
 
     public void draw(Canvas canvas){
 
@@ -91,14 +99,20 @@ public class Centipede extends GameObject {
     public void update(){
         if(y < 16)
             dy = 8;
-        else if(y >= 512){
+        else if(y >= 512-16){
+            y = 512-16;
             dx = 0;
             dy =-8;
+            centipedeReachedBottom = true;
         }
         else if(x < 0){
             x = 0;
             dx = 0;
-            dy = 8;
+            if(!centipedeReachedBottom)
+                dy = 8;
+            else{
+                dy = -8;
+            }
             prev2DirectionCode = prevDirectionCode;
             prevDirectionCode = directionCode;
             directionCode = 2;
@@ -106,7 +120,10 @@ public class Centipede extends GameObject {
         else if(x + width > 480){
             x = 480 - width;
             dx = 0;
-            dy = 8;
+            if(!centipedeReachedBottom)
+                dy = 8;
+            else
+                dy = -8;
             prev2DirectionCode = prevDirectionCode;
             prevDirectionCode = directionCode;
             directionCode = 2;
@@ -161,6 +178,9 @@ public class Centipede extends GameObject {
         prevY = y;
         x+= dx;
         y+= dy;
+
+        if(y < 16 * 26)
+            centipedeReachedBottom = false;
     }
 
     public int nextValidMushroomPositionX(){

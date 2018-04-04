@@ -36,7 +36,7 @@ class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     private Paint scorePaint;
     private long newCentipedeTimer = 0;
 
-    private boolean centipedeReachedBottom = false;
+    private boolean centipedeSpawnBottom = false;
 
     private boolean ignoreCollision;
     private int mushroomIndex;
@@ -173,15 +173,15 @@ class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
             player.update();
 
 
-            if((System.nanoTime()/1000000) - newCentipedeTimer   > 5000 && centipedeReachedBottom){
+            if((System.nanoTime()/1000000) - newCentipedeTimer   > 4000 && centipedeSpawnBottom){
                 centipedeArrayList.add(new Centipede(BitmapFactory.decodeResource(getResources(), R.drawable.centipede_head),true, 488* rand.nextInt(2), 16*25));
                 newCentipedeTimer =  (System.nanoTime()/1000000);
             }
             //System.out.println("Centipede Y: " + centipedeArrayList.get(0).getY() % 16);
             for(int i = 0; i < centipedeArrayList.size();i++ ) {
                 centipedeArrayList.get(i).update();
-                if(centipedeArrayList.get(i).getY() >= 512 && !centipedeReachedBottom){
-                    centipedeReachedBottom = true;
+                if(centipedeArrayList.get(i).getY() >= 512-16 && !centipedeSpawnBottom){
+                    centipedeSpawnBottom = true;
                     newCentipedeTimer = System.nanoTime()/1000000;
                 }
             }
@@ -238,11 +238,12 @@ class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                         }
                     }else{
                         if (collision(mushroomArrayList.get(i), centipedeArrayList.get(j))) {
-                            centipedeArrayList.get(j).mushroomCollision(mushroomArrayList.get(i), false);
+                            centipedeArrayList.get(j).mushroomCollision(mushroomArrayList.get(i));
                         }
                     }
 
                     if(collision(centipedeArrayList.get(j), player)){
+
                         if(numberOfLives > 0) {
                             resetScene();
                             numberOfLives--;
@@ -355,6 +356,6 @@ class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
             centipedeArrayList.add(new Centipede(BitmapFactory.decodeResource(getResources(), R.drawable.centipede_body),false, (15)*16, i*-16));
 
         }
-        centipedeReachedBottom = false;
+        centipedeSpawnBottom = false;
     }
 }
