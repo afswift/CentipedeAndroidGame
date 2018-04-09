@@ -15,13 +15,24 @@ public class Player extends GameObject {
     private int xPrev;
     private int yPrev;
 
-    public Player(Bitmap res, int w, int h){
+    public Player(Bitmap res){
         x=GamePanel.WIDTH / 2;
         y=504;
         dy = 0;
         score = 0;
-        height = h;
-        width = w;
+        height = 16;
+        width = 14;
+
+        spritesheet = Bitmap.createScaledBitmap(res, 14, 16, false);
+    }
+
+    public Player(Bitmap res, int x, int y){
+        x=GamePanel.WIDTH / 2;
+        y=504;
+        dy = 0;
+        score = 0;
+        height = 16;
+        width = 14;
 
         spritesheet = Bitmap.createScaledBitmap(res, 14, 16, false);
     }

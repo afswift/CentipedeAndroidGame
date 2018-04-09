@@ -14,7 +14,7 @@ public class Mushroom extends GameObject {
     private Bitmap spritesheet;
     private Bitmap[] mushroomSprites;
 
-    public Mushroom(Bitmap res, int x, int y, int numFrames){
+    public Mushroom(Bitmap res, int x, int y){
         this.x=x;
         this.y = y;
         spritesheet = Bitmap.createScaledBitmap(res, 64, 16, false);
@@ -23,7 +23,26 @@ public class Mushroom extends GameObject {
         hitpoints = 4;
         width = 16;
         height = 16;
-        mushroomSprites = new Bitmap[numFrames];
+        mushroomSprites = new Bitmap[4];
+        infected = false;
+        for(int i = 0; i<mushroomSprites.length; i++){
+            mushroomSprites[i] = Bitmap.createBitmap(spritesheet, i*width, 0, width, height);
+        }
+    }
+
+    public Mushroom(Bitmap res, int x, int y, int hitpoints){
+        this.x=x;
+        this.y = y;
+        spritesheet = Bitmap.createScaledBitmap(res, 64, 16, false);
+        dy = 0;
+        dx = 0;
+        if(hitpoints > 4)
+            this.hitpoints = 4;
+        else
+            this.hitpoints = hitpoints;
+        width = 16;
+        height = 16;
+        mushroomSprites = new Bitmap[4];
         infected = false;
         for(int i = 0; i<mushroomSprites.length; i++){
             mushroomSprites[i] = Bitmap.createBitmap(spritesheet, i*width, 0, width, height);

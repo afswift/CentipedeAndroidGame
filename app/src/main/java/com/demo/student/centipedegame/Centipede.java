@@ -49,14 +49,55 @@ public class Centipede extends GameObject {
         startTime = System.nanoTime();
     }
 
+    public Centipede(Bitmap res, boolean isHead,boolean reachedBottom, int x, int y, int dx, int dy, int directionCode){
+        this.head = isHead;
+        this.width = 16;
+        this.height = 16;
+        this.x = x;
+        this.y = y;
+        this.dx = dx;
+        this.dy = dy;
+        this.directionCode = directionCode;
+        this.frameCount = 8;
+        centipedeReachedBottom = reachedBottom;
 
-    public void setHead(Bitmap res){
-        this.head = true;
+        image = new Bitmap[8][4];
         spritesheet = Bitmap.createScaledBitmap(res, 128, 64, false);
+        // TODO: Use something other than magic numbers
         for(int i = 0; i<8; i++){
             for(int j = 0; j < 4; j++)
                 image[i][j] = Bitmap.createBitmap(spritesheet, i*width, height * j, width, height);
         }
+
+        startTime = System.nanoTime();
+    }
+
+
+    public void setHead(Bitmap res){
+        this.head = true;
+        spritesheet = Bitmap.createScaledBitmap(res, 128, 64, false);
+        if(directionCode== 0){
+            dx = -8;
+        }else if(directionCode == 1){
+            dx = 8;
+        }else if(directionCode == 2){
+            if(centipedeReachedBottom)
+                dy = -8;
+            else
+                dy = 8;
+
+
+        }else{
+            if(prev2DirectionCode == 0)
+                dx = 8;
+            else if(prev2DirectionCode == 1)
+                dx = -8;
+        }
+        for(int i = 0; i<8; i++){
+            for(int j = 0; j < 4; j++)
+                image[i][j] = Bitmap.createBitmap(spritesheet, i*width, height * j, width, height);
+        }
+
     }
 
     public void mushroomCollision(Mushroom mushroom){
@@ -83,6 +124,33 @@ public class Centipede extends GameObject {
         }
         directionCode = 2;
     }
+
+    public void centipedeCollision(Centipede centipede){
+
+        if(directionCode == 0){
+            prevDirectionCode = 0;
+            x = centipede.getX() + centipede.getWidth();
+        }else if(directionCode == 1){
+            prevDirectionCode = 1;
+            x = centipede.getX() - width;
+        }else{
+            return;
+        }
+
+        dx = 0;
+        dy = 8;
+        if(!centipedeReachedBottom) {
+            y += 8;
+            dy = 8;
+        }
+        else {
+            y -= 8;
+            dy = -8;
+        }
+        directionCode = 2;
+    }
+
+
 
 
     public void draw(Canvas canvas){
@@ -198,6 +266,36 @@ public class Centipede extends GameObject {
         }
     }
 
+    public void updateBody(Centipede newHead){
+
+        long delay = 10;
+
+        long elapsed = (System.nanoTime() - startTime)/1000000;
+
+
+        if(elapsed > delay){
+            currentFrame++;
+            startTime = System.nanoTime();
+        }
+        if(currentFrame == frameCount){
+            currentFrame = 0;
+        }
+
+        this.prev2X = this.prevX;
+        this.prev2Y = this.prevY;
+
+        this.prevX = this.x;
+        this.prevY = this.y;
+
+        this.x = newHead.prev2X;
+        this.y = newHead.prev2Y;
+
+        this.prev2DirectionCode = this.prevDirectionCode;
+        this.prevDirectionCode = this.directionCode;
+        this.directionCode = newHead.prev2DirectionCode;
+
+    }
+
 
     public boolean isHead(){
         return head;
@@ -221,5 +319,9 @@ public class Centipede extends GameObject {
 
     public void setPrevY(int prevY) {
         this.prevY = prevY;
+    }
+
+    public boolean hasReachedBottom(){
+        return centipedeReachedBottom;
     }
 }
