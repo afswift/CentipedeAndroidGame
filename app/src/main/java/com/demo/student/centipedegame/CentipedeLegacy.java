@@ -4,15 +4,15 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 
-import java.util.Random;
-
 /**
  * Created by butle on 4/1/2018.
  */
 
-public class Centipede extends GameObject {
+public class CentipedeLegacy extends GameObject {
+    private Animation animation = new Animation();
     private long startTime;
     private boolean head;
+    private Bitmap spritesheet;
     private int frameCount;
     Bitmap[][] image;
     private int currentFrame;
@@ -27,7 +27,7 @@ public class Centipede extends GameObject {
 
     // directionCode 0 is left, 1 is right, 2 is diag, 3 is down
 
-    public Centipede(Bitmap[][] splitSpritesheet, boolean isHead, int x, int y){
+    public CentipedeLegacy(Bitmap[][] splitSpritesheet, boolean isHead, int x, int y){
         this.head = isHead;
         this.width = 16;
         this.height = 16;
@@ -40,7 +40,7 @@ public class Centipede extends GameObject {
         startTime = System.nanoTime();
     }
 
-    public Centipede(Bitmap[][] res, boolean isHead,boolean reachedBottom, int x, int y, int dx, int dy, int directionCode){
+    public CentipedeLegacy(Bitmap res, boolean isHead, boolean reachedBottom, int x, int y, int dx, int dy, int directionCode){
         this.head = isHead;
         this.width = 16;
         this.height = 16;
@@ -52,7 +52,14 @@ public class Centipede extends GameObject {
         this.frameCount = 8;
         centipedeReachedBottom = reachedBottom;
 
-        image = res;
+        image = new Bitmap[8][4];
+        spritesheet = Bitmap.createScaledBitmap(res, 128, 64, false);
+        // TODO: Use something other than magic numbers
+        for(int i = 0; i<8; i++){
+            for(int j = 0; j < 4; j++)
+                image[i][j] = Bitmap.createBitmap(spritesheet, i*width, height * j, width, height);
+        }
+
         startTime = System.nanoTime();
     }
 
@@ -83,19 +90,15 @@ public class Centipede extends GameObject {
     public void mushroomCollision(Mushroom mushroom){
 
         if(directionCode == 0){
-            prev2DirectionCode=prevDirectionCode;
             prevDirectionCode = 0;
             x = mushroom.getX() + mushroom.getWidth();
-            y+=8;
         }else if(directionCode == 1){
-            prev2DirectionCode=prevDirectionCode;
             prevDirectionCode = 1;
             x = mushroom.getX() - width;
-            y+=8;
         }else{
             return;
         }
-        directionCode=2;
+
         dx = 0;
 
         if(!centipedeReachedBottom) {
@@ -109,20 +112,45 @@ public class Centipede extends GameObject {
         directionCode = 2;
     }
 
+    public void centipedeCollision(CentipedeLegacy centipede){
+
+        if(directionCode == 0){
+            prevDirectionCode = 0;
+            x = centipede.getX() + centipede.getWidth();
+        }else if(directionCode == 1){
+            prevDirectionCode = 1;
+            x = centipede.getX() - width;
+        }else{
+            return;
+        }
+
+        dx = 0;
+        dy = 8;
+        if(!centipedeReachedBottom) {
+            y += 8;
+            dy = 8;
+        }
+        else {
+            y -= 8;
+            dy = -8;
+        }
+        directionCode = 2;
+    }
+
+
+
 
     public void draw(Canvas canvas){
+
         if(prevDirectionCode == 0 && directionCode == 2 || directionCode == 3)
             canvas.drawBitmap(image[currentFrame % 4][directionCode],x,y, null);
         else if(prevDirectionCode == 1 && directionCode == 2)
             canvas.drawBitmap(image[4+(currentFrame % 4)][directionCode],x,y, null);
         else
             canvas.drawBitmap(image[currentFrame][directionCode],x,y, null);
-    }
-/*
-    public void update(){
 
     }
-*/
+
     public void update(){
         if(y < 16)
             dy = 8;
@@ -170,7 +198,6 @@ public class Centipede extends GameObject {
             dx = 0;
         }
         else if(directionCode == 3 ){
-            dy=0;
             if(centipedeReachedBottom){
                 y-=8;
             }else{
@@ -179,12 +206,14 @@ public class Centipede extends GameObject {
             if(prev2DirectionCode == 0) {
                 prev2DirectionCode = prevDirectionCode;
                 prevDirectionCode = directionCode;
+
+                dy=0;
                 dx = 8;
                 directionCode =1;
             }else{
                 prev2DirectionCode = prevDirectionCode;
                 prevDirectionCode = directionCode;
-
+                dy= 0;
                 dx =-8;
                 directionCode =0;
             }
@@ -194,8 +223,18 @@ public class Centipede extends GameObject {
             prevDirectionCode = directionCode;
         }
 
-       updateAnimation();;
+        long delay = 10;
 
+        long elapsed = (System.nanoTime() - startTime)/1000000;
+
+
+        if(elapsed > delay){
+            currentFrame++;
+            startTime = System.nanoTime();
+        }
+        if(currentFrame == frameCount){
+            currentFrame = 0;
+        }
         prev2X = prevX;
         prev2Y = prevY;
         prevX = x;
@@ -207,11 +246,28 @@ public class Centipede extends GameObject {
             centipedeReachedBottom = false;
     }
 
+    public int nextValidMushroomPositionX(){
+        if(directionCode == 0){
+                if (x < 15)
+                    return -1;
+                return((16* (x/16)) - 16);
+        }else if(directionCode == 1){
+            if(x + width > 479)
+                return -1;
+            return ((16* (x/16)) + 16);
 
+        }else{
+            return (16* (x/16));
+        }
+    }
 
-    public void updateAnimation(){
+    public void updateBody(CentipedeLegacy newHead){
+
         long delay = 10;
+
         long elapsed = (System.nanoTime() - startTime)/1000000;
+
+
         if(elapsed > delay){
             currentFrame++;
             startTime = System.nanoTime();
@@ -219,11 +275,6 @@ public class Centipede extends GameObject {
         if(currentFrame == frameCount){
             currentFrame = 0;
         }
-    }
-
-    public void updateBody(Centipede newHead){
-
-        updateAnimation();
 
         this.prev2X = this.prevX;
         this.prev2Y = this.prevY;
@@ -238,20 +289,6 @@ public class Centipede extends GameObject {
 
     }
 
-    public int nextValidMushroomPositionX(){
-        if(directionCode == 0){
-            if (x < 15)
-                return -1;
-            return((16* (x/16)) - 16);
-        }else if(directionCode == 1){
-            if(x + width > 479)
-                return -1;
-            return ((16* (x/16)) + 16);
-
-        }else{
-            return (16* (x/16));
-        }
-    }
 
     public boolean isHead(){
         return head;
@@ -282,6 +319,6 @@ public class Centipede extends GameObject {
     }
 
     public Rect getNextCollisionRect(){
-        return new Rect(x+(dx),y, (dx) + x+width, y+height);
+        return new Rect(x+(dx),y+(dy), (dx) + x+width, (dy)+ y+height);
     }
 }

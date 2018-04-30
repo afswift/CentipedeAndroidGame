@@ -1,10 +1,17 @@
 package com.demo.student.centipedegame;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Window;
 import android.view.WindowManager;
+
+interface VolleyResponseListener {
+    void onError(String message);
+
+    void onResponse(Object response);
+}
 
 public class MainActivity extends Activity {
 
@@ -12,17 +19,21 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
         newGamePanel = new GamePanel(this);
-        // removes title
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-
-        // set to full screen
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
         setContentView(newGamePanel);
-        System.out.println("Was this called again?");
+
+        newGamePanel.addGamePanelBooleanListener(new GamePanelBooleanChangedListener() {
+            @Override
+            public void OnMyBooleanChanged() {
+                System.out.println("GameOver Achieved");
+                Intent intent = new Intent(getBaseContext(), PostgameScreen.class);
+                intent.putExtra("PLAYER_SCORE", newGamePanel.getScore());
+                startActivity(intent);
+                finish();
+            }
+        });
     }
 
     @Override
@@ -38,18 +49,16 @@ public class MainActivity extends Activity {
         outState.putBooleanArray("centipedeBooleans", newGamePanel.saveCentipedeBoolean());
         outState.putIntArray("playerPosition", newGamePanel.savePlayerPosition());
         outState.putIntArray("mushroomsPosition", newGamePanel.saveMushroomsPosition());
-        System.out.println("On SavedInstance State was called");
-
     }
 
     @Override
     public void onRestoreInstanceState(Bundle savedState){
         super.onRestoreInstanceState(savedState);
-
         if(savedState!=null) {
             newGamePanel.reloadPlayerPosition(savedState.getIntArray("playerPosition"));
             newGamePanel.reloadCentipede(savedState);
             newGamePanel.reloadMushrooms(savedState.getIntArray("mushroomsPosition"));
+            newGamePanel.setIsPlaying(false);
         }
     }
 

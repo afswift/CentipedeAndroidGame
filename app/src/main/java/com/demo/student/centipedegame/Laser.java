@@ -9,10 +9,7 @@ import android.graphics.Paint;
  */
 
 public class Laser extends GameObject {
-
     Paint paint;
-    boolean readyToFire;
-
 
     Laser(){
         paint = new Paint();
@@ -29,8 +26,6 @@ public class Laser extends GameObject {
     public void update(){
         if(y < 1000 || y > -15)
             y+=dy;
-
-
     }
 
     public void draw(Canvas canvas){

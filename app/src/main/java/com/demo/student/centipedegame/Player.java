@@ -11,7 +11,6 @@ import android.graphics.Rect;
 public class Player extends GameObject {
     private Bitmap spritesheet;
     private int score;
-    private boolean playing;
     private int xPrev;
     private int yPrev;
 
@@ -22,7 +21,6 @@ public class Player extends GameObject {
         score = 0;
         height = 16;
         width = 14;
-
         spritesheet = Bitmap.createScaledBitmap(res, 14, 16, false);
     }
 
@@ -33,12 +31,10 @@ public class Player extends GameObject {
         score = 0;
         height = 16;
         width = 14;
-
         spritesheet = Bitmap.createScaledBitmap(res, 14, 16, false);
     }
 
     public void setDirection(float Angle, float Magnitude){
-
         dx = (int) (10 * Magnitude * Math.cos(Angle));
         dy = (int) (10 * Magnitude * Math.sin(Angle));
     }
@@ -49,7 +45,6 @@ public class Player extends GameObject {
     }
 
     public void update(){
-
         xPrev = x;
         yPrev = y;
         if( x + dx < 0)
@@ -71,16 +66,31 @@ public class Player extends GameObject {
         canvas.drawBitmap(spritesheet, x, y, null);
     }
 
+    public void solidObjectCollision(GameObject solidObject){
+
+
+        // from right
+        if(xPrev >= (solidObject.getX()+ solidObject.getWidth())){
+            x = solidObject.getX() + solidObject.getWidth();//+1);
+            dx=0;
+        }
+        // from left
+        else if(xPrev + width <= solidObject.getX()){
+            x = solidObject.getX() - width; // - 1);
+            dx=0;
+        }
+        else if((yPrev + height) <= solidObject.getY()){
+            y=solidObject.getY()- height; //-1);
+            dy=0;
+        }
+        // from right
+        else if(yPrev >= (solidObject.getY()+ solidObject.getHeight())){
+            y=solidObject.getY() + solidObject.getHeight();//+1);
+            dy=0;
+        }
+    }
     public int getScore(){
         return score;
-    }
-
-    public boolean getPlaying(){
-        return playing;
-    }
-
-    public void setPlaying(boolean b){
-        playing = b;
     }
 
     public void resetDY(){

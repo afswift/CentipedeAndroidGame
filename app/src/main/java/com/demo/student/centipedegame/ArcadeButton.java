@@ -70,15 +70,13 @@ public class ArcadeButton {
     public boolean insideJoystickBounds(float coordX, float coordY){
         if(currentRadius(coordX, coordY)<radius)
             return true;
-
         return false;
     }
 
     public float currentRadius(float coordX, float coordY){
-        float xPythag = coordX - centerX;
-        float yPythag = coordY - centerY;
-
-        return (float) Math.sqrt((xPythag * xPythag) + (yPythag * yPythag));
+        float pythagX = coordX - centerX;
+        float pythagY = coordY - centerY;
+        return (float) Math.sqrt((pythagX * pythagX) + (pythagY * pythagY));
     }
 
     public void draw(Canvas canvas){
