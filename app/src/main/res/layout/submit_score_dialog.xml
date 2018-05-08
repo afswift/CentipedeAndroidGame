@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center"
+    android:layout_marginLeft="5dp"
+    android:layout_marginRight="5dp"
+    android:orientation="vertical">
+
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="9dp"
+        android:gravity="center"
+        android:text="@string/enter_score_name"
+        android:textAlignment="center" />
+
+    <EditText
+        android:id="@+id/playerScoreName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:inputType="number" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/cancelDialog"
+            android:layout_width="166dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/cancel_button" />
+
+        <Button
+            android:id="@+id/acceptDialog"
+            android:layout_width="166dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/submit_score" />
+    </LinearLayout>
+</LinearLayout>

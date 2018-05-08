@@ -30,6 +30,7 @@ public class MainActivity extends Activity {
                 System.out.println("GameOver Achieved");
                 Intent intent = new Intent(getBaseContext(), PostgameScreen.class);
                 intent.putExtra("PLAYER_SCORE", newGamePanel.getScore());
+                intent.putExtra("KEY_IS_FROM_MAIN", false);
                 startActivity(intent);
                 finish();
             }

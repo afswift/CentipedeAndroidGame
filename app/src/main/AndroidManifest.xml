@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.demo.student.centipedegame">
+
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -12,12 +14,13 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".MainActivity"
-            android:screenOrientation="portrait">
-
-        </activity>
+            android:screenOrientation="portrait" />
         <activity
             android:name=".PostgameScreen"
             android:label="@string/title_activity_postgame_screen"
+            android:theme="@style/CentipedeThemeDark">
+        </activity>
+        <activity android:name=".CentipedeMainMenu"
             android:theme="@style/CentipedeThemeDark">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

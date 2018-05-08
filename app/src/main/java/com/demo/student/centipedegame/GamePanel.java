@@ -55,8 +55,8 @@ class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     private int numberOfLives = 0;
     private boolean gameOver;
     private int nextLifeScore = 10000;
-    private boolean boo = false;
     private static List<GamePanelBooleanChangedListener> listeners = new ArrayList<GamePanelBooleanChangedListener>();
+    private Mushroom[][] mushroomField;
 
 
     public GamePanel(Context context){
@@ -102,14 +102,29 @@ class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
             centipedeArrayList = new ArrayList<Centipede>();
             mushroomArrayList = new ArrayList<Mushroom>();
 
+            mushroomField = new Mushroom[30][30];
+
             centipedeArrayList.add(new Centipede(centipedeHeadSprites, true, 15 * 16, 0));
             for (int i = 1; i < 16; i++)
                 centipedeArrayList.add(new Centipede(centipedeBodySprites, false, (15) * 16, i * -16));
 
             for (int i = 0; i < 23; i++) {
-                rand.nextInt(30);
+                //rand.nextInt(30);
                 mushroomArrayList.add(new Mushroom(BitmapFactory.decodeResource(getResources(), R.drawable.mushrooms), (16 * rand.nextInt(30)), (16 * (3 + rand.nextInt(27)))));
             }
+
+            /*
+            for(int i = 0; i < 30; i++){
+                for(int j = 0; j< 30; j++){
+                    mushroomField[i][j]=null;
+                }
+            }
+            for (int i = 0; i < 23; i++) {
+                mushroomXPos = rand.nextInt(30);
+                mushroomYPos = 3 + rand.nextInt(27);
+                mushroomField[mushroomXPos][mushroomYPos] = new Mushroom(BitmapFactory.decodeResource(getResources(), R.drawable.mushrooms), (16 * mushroomXPos), (16 * (3 + mushroomYPos)));
+            }
+            */
             isPlaying = true;
         }
 
@@ -188,11 +203,9 @@ class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
 
         return true;
     }
-
     // **********************
     // **** UPDATE EVENT ****
     // **********************
-
     public void update(){
         if(isPlaying) {
             laser.update();
@@ -226,6 +239,26 @@ class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
 
             if(rightButton.isButtonPressed() && !laser.isLaserOnscreen())
                 laser.resetLaser(player.getX() + player.getWidth()/2, player.getY());
+
+
+            /*
+            Mushroom mushroomReference = null;
+            if(laser.getX() > 0 && laser.getX() < 480 ) {
+                if (laser.getY() > 0 && laser.getY() < 512) {
+                    if (mushroomField[laser.getX() / 16][laser.getY() / 16] != null) {
+                        mushroomReference = mushroomField[laser.getX() / 16][laser.getY() / 16];
+                        if (collision(mushroomReference, laser)) {
+                            mushroomReference.decrementHitpoints();
+                            if (mushroomReference.getHitpoints() < 1) {
+                                mushroomField[laser.getX() / 16][laser.getY() / 16] = null;
+                                score += 1;
+                            }
+                        }
+                    }
+                }
+            }
+            */
+
 
             int tempMushroomIndex = -1;
             Mushroom tempMushroomReference = null;
@@ -291,16 +324,13 @@ class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                 }
             }
 
-            if(tempMushroomIndex!= -1)
-                mushroomArrayList.remove(tempMushroomIndex);
-
-
         }
         if(score >= nextLifeScore){
             numberOfLives++;
             nextLifeScore+=nextLifeScore;
         }
     }
+
 
     public boolean collision(GameObject a, GameObject b){
         if(Rect.intersects(a.getRectangle(),b.getRectangle())){

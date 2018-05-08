@@ -3,4 +3,10 @@
     <string name="title_activity_postgame_screen">PostgameScreen</string>
     <string name="player_score_text">Your Score:</string>
     <string name="global_high_score_text">Global High Score</string>
+    <string name="back_to_menu"> Main  Menu </string>
+    <string name="submit_score">Submit Score</string>
+    <string name="start_game"> Start Game </string>
+    <string name="view_scores">High Scores</string>
+    <string name="enter_score_name">Enter name for high score</string>
+    <string name="cancel_button">Cancel</string>
 </resources>
